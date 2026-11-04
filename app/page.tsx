@@ -1,69 +1,106 @@
-import Image from "next/image";
+"use client";
 
+import { useState } from "react";
 export default function Home() {
+  const events = [
+    {
+      id: 1,
+      method: "POST",
+      endpoint: "/api/users",
+      status: 200
+    },
+    {
+      id: 2,
+      method: "POST",
+      endpoint: "/api/orders",
+      status: 500
+    },
+    {
+      id: 3,
+      method: "POST",
+      endpoint: "/api/payments",
+      status: 200
+    },
+    {
+      id: 4,
+      method: "GET",
+      endpoint: "/api/products",
+      status: 200
+    }
+  ];
+  const [filter, setFilter] = useState("ALL");
+  const filteredEvents = events.filter((event) => {
+    return filter === "ALL" || event.method === filter;
+  })
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className = "flex min-h-screen">
+      <aside className = "w-50 bg-zinc-900 text-white p-6">
+        <h2>HookScope</h2>
+          <ul className = "space-y-4">
+            <li className = "hover:bg-zinc-800 rounded-md p-2">
+              Dashboard
+              </li>
+            <li className = "hover:bg-zinc-800 rounded-md p-2">
+              Events
+              </li>
+            <li className = "hover:bg-zinc-800 rounded-md p-2">
+              Projects
+              </li>
+          </ul>
+      </aside>
+      <main className = "flex-auto bg-zinc-700 p-6">
+        <h1 className = "font-bold text-2xl">Overview</h1>
+          <div className = "grid grid-cols-3 gap-4">
+            <div className="bg-zinc-800 p-4 rounded-lg text-white">
+              <h3 className="text-sm text-zinc-400">Received Events</h3>
+              <p className="text-3xl font-bold">128</p>
+            </div>
+            <div className="bg-zinc-800 p-4 rounded-lg text-white">
+              <h3 className="text-sm text-zinc-400">Success Rate</h3>
+              <p className="text-3xl font-bold">97%</p>
+            </div>
+            <div className="bg-zinc-800 p-4 rounded-lg text-white">
+              <h3 className="text-sm text-zinc-400">Errors</h3>
+              <p className="text-3xl font-bold">3</p>
+            </div>
+          </div>
+          <section className = "mt-8">
+            <h2 className="text-xl font-bold">Recent Events</h2>
+            <button
+              onClick = {() => setFilter("ALL")}
+              className = {filter === "ALL" ? " text-white px-2 py-2 rounded-md" : " text-zinc-400 px-2 py-2 rounded-md"}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              ALL
+            </button>
+            <button
+              onClick = {() => setFilter("GET")}
+              className = {filter === "GET" ? "text-white px-2 py-2 rounded-md" : "text-zinc-400 px-2 py-2 rounded-md"}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+              GET
+            </button>
+            <button
+              onClick = {() => setFilter("POST")}
+              className = {filter === "POST" ? " text-white px-2 py-2 rounded-md" : " text-zinc-400 px-2 py-2 rounded-md"}
+            >
+              POST
+            </button>
+            <div className="space-y-3">
+              {filteredEvents.map((event) => {
+                const isSuccess = event.status >= 200 && event.status < 300;
+                const isGet = event.method === "GET";
+                const isPost = event.method === "POST";
+                return (
+                  <div key = {event.id} className = "flex justify-between items-center bg-zinc-800 p-4 rounded-lg text-white">
+                    <span className = {isGet ? "text-blue-400" : isPost ? "text-green-400" : "text-white"}>{event.method}</span>
+                    <span>{event.endpoint}</span>
+                    <span className = {isSuccess ? "text-green-400" : "text-red-400"}>{isSuccess ? "SUCCESS" : "ERROR"}({event.status})</span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
       </main>
     </div>
-  );
+  )
 }
