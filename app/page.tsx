@@ -1,5 +1,6 @@
 "use client";
 
+import { eventNames } from "process";
 import { useState } from "react";
 export default function Home() {
   const events = [
@@ -28,9 +29,14 @@ export default function Home() {
       status: 200
     }
   ];
+
   const [filter, setFilter] = useState("ALL");
+
+  const [searchQuery, setSearchQuery] = useState("");
+
   const filteredEvents = events.filter((event) => {
-    return filter === "ALL" || event.method === filter;
+    return (filter === "ALL" || event.method === filter)
+    && event.endpoint.toLowerCase().includes(searchQuery.toLowerCase());
   })
 
   return (
@@ -67,6 +73,11 @@ export default function Home() {
           </div>
           <section className = "mt-8">
             <h2 className="text-xl font-bold">Recent Events</h2>
+            <input type = "text"
+            placeholder = "search events..."
+            value = {searchQuery}
+            onChange = {(e) => setSearchQuery(e.target.value)}
+          />
             <button
               onClick = {() => setFilter("ALL")}
               className = {filter === "ALL" ? " text-white px-2 py-2 rounded-md" : " text-zinc-400 px-2 py-2 rounded-md"}
