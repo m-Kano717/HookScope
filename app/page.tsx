@@ -1,6 +1,5 @@
 "use client";
 
-import { eventNames } from "process";
 import { useState } from "react";
 export default function Home() {
   const events = [
@@ -8,25 +7,29 @@ export default function Home() {
       id: 1,
       method: "POST",
       endpoint: "/api/users",
-      status: 200
+      status: 200,
+      receivedAt: "2026-11-01 10:30:00" 
     },
     {
       id: 2,
       method: "POST",
       endpoint: "/api/orders",
-      status: 500
+      status: 500,
+      receivedAt: "2026-11-03 11:25:00" 
     },
     {
       id: 3,
       method: "POST",
       endpoint: "/api/payments",
-      status: 200
+      status: 300,
+      receivedAt: "2026-11-03 18:00:00" 
     },
     {
       id: 4,
       method: "GET",
       endpoint: "/api/products",
-      status: 200
+      status: 400,
+      receivedAt: "2026-11-05 10:30:00" 
     }
   ];
 
@@ -34,10 +37,16 @@ export default function Home() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [selectedEvent, setSelectedEvent] = useState<typeof events[number] | null>(null);
+
   const filteredEvents = events.filter((event) => {
     return (filter === "ALL" || event.method === filter)
     && event.endpoint.toLowerCase().includes(searchQuery.toLowerCase());
   })
+  
+  const isSelectedEventSuccess = selectedEvent !== null && (selectedEvent.status >= 200 && selectedEvent.status < 300);
+  const isSelectedEventClientError = selectedEvent !== null && (selectedEvent.status >= 400 && selectedEvent.status < 500);
+  const isSelectedEventServerError = selectedEvent !== null && (selectedEvent.status >= 500 && selectedEvent.status < 600);
 
   return (
     <div className = "flex min-h-screen">
@@ -72,12 +81,29 @@ export default function Home() {
             </div>
           </div>
           <section className = "mt-8">
-            <h2 className="text-xl font-bold">Recent Events</h2>
-            <input type = "text"
-            placeholder = "search events..."
-            value = {searchQuery}
-            onChange = {(e) => setSearchQuery(e.target.value)}
-          />
+            {selectedEvent && (
+              <div className = "relative flex flex-col rounded-md text-white text-lg p-4 gap-2 bg-zinc-800">
+                <button onClick = {() => setSelectedEvent(null)}
+                 className = "absolute right-1 top-1 pr-2 pl-2 rounded-full bg-zinc-700 text-zinc-400 hover:bg-zinc-600 transition-colors duration-75">
+                  ×
+                </button>
+                <p>Method: {selectedEvent.method}</p>
+                <p>Endpoint: {selectedEvent.endpoint}</p>
+                <p className = {isSelectedEventSuccess ? "text-green-400" : isSelectedEventClientError ? "text-yellow-400" : isSelectedEventServerError ? "text-red-400" : "text-blue-400"}>Status: {selectedEvent.status}</p>
+                <p>Received At: {selectedEvent.receivedAt}</p>
+              </div>
+            )}
+            <h2 className="text-xl font-bold">
+              Recent Events
+            </h2>
+            <div>
+              <input type = "text"
+                placeholder = "search events..."
+                value = {searchQuery}
+                onChange = {(e) => setSearchQuery(e.target.value)}
+                className="w-1/2 bg-zinc-800 text-white border border-zinc-700 px-4 py-2 rounded-md"
+              />
+            </div>
             <button
               onClick = {() => setFilter("ALL")}
               className = {filter === "ALL" ? " text-white px-2 py-2 rounded-md" : " text-zinc-400 px-2 py-2 rounded-md"}
@@ -96,16 +122,30 @@ export default function Home() {
             >
               POST
             </button>
+
             <div className="space-y-3">
-              {filteredEvents.map((event) => {
+              <h3 className = "grid grid-cols-[100px_1.3fr_1.7fr_130px] items-center bg-zinc-800 p-4 rounded-lg text-white">
+                <span>Method</span>
+                <span>Endpoint</span>
+                <span>Received At</span>
+                <span>Status</span>
+              </h3>
+              {filteredEvents.length === 0 ? 
+                <div className="text-zinc-400 text-center p-8">
+                  No Events Found
+                </div>
+               : filteredEvents.map((event) => {
                 const isSuccess = event.status >= 200 && event.status < 300;
+                const isClientError = event.status >= 400 && event.status < 500;
+                const isServerError = event.status >= 500 && event.status < 600;
                 const isGet = event.method === "GET";
                 const isPost = event.method === "POST";
                 return (
-                  <div key = {event.id} className = "flex justify-between items-center bg-zinc-800 p-4 rounded-lg text-white">
+                  <div key = {event.id} onClick = {() => setSelectedEvent(event)} className = "hover:bg-zinc-900 transition-colors duration-200 grid grid-cols-[100px_1.3fr_1.7fr_130px] items-center bg-zinc-800 p-4 rounded-lg text-white">
                     <span className = {isGet ? "text-blue-400" : isPost ? "text-green-400" : "text-white"}>{event.method}</span>
                     <span>{event.endpoint}</span>
-                    <span className = {isSuccess ? "text-green-400" : "text-red-400"}>{isSuccess ? "SUCCESS" : "ERROR"}({event.status})</span>
+                    <span className = "text-sm text-zinc-400">{event.receivedAt}</span>
+                    <span className = {isSuccess ? "text-green-400" : isClientError ? "text-yellow-400" : isServerError ? "text-red-400" : "text-blue-400"}>{isSuccess ? "SUCCESS" : isServerError || isClientError ? "ERROR" : "REDIRECT"}({event.status})</span>
                   </div>
                 );
               })}
