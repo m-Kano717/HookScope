@@ -7,7 +7,7 @@ export default function Home() {
       id: 1,
       method: "POST",
       endpoint: "/api/users",
-      status: 200,
+      status: 205,
       receivedAt: "2026-11-01 10:30:00" 
     },
     {
@@ -49,15 +49,41 @@ export default function Home() {
     return "UNKNOWN";
   };
 
+  const getStatusColor = (status : number) => {
+    if(status >= 200 && status < 300){
+      return "text-green-400"
+    };
+    if(status >= 300 && status < 400){
+      return "text-blue-400"
+    };
+    if(status >= 400 && status < 500){
+      return "text-yellow-400"
+    };
+    if(status >= 500 && status < 600){
+      return "text-red-400"
+    };
+    return "text-zinc-300";
+  };
+
   const [filter, setFilter] = useState("ALL");
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const [selectedEvent, setSelectedEvent] = useState<typeof events[number] | null>(null);
 
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
   const filteredEvents = events.filter((event) => {
     return (filter === "ALL" || event.method === filter)
-    && event.endpoint.toLowerCase().includes(searchQuery.toLowerCase());
+    && (event.endpoint.toLowerCase().includes(normalizedQuery)
+    || event.method.toLowerCase().includes(normalizedQuery));
+  });
+  const successEvents = events.filter((event) => {
+    return getStatusType(event.status).includes("SUCCESS");
+  });
+
+  const errorEvents = events.filter((event) => {
+    return getStatusType(event.status).includes("ERROR");
   })
 
   const selectedStatus = selectedEvent !== null
@@ -87,18 +113,19 @@ export default function Home() {
           <div className = "grid grid-cols-3 gap-4">
             <div className="bg-zinc-800 p-4 rounded-lg text-white">
               <h3 className="text-sm text-zinc-400">Received Events</h3>
-              <p className="text-3xl font-bold">128</p>
+              <p className="text-3xl font-bold">{events.length}</p>
             </div>
             <div className="bg-zinc-800 p-4 rounded-lg text-white">
-              <h3 className="text-sm text-zinc-400">Success Rate</h3>
-              <p className="text-3xl font-bold">97%</p>
+              <h3 className="text-sm text-zinc-400">HTTP Success Rate</h3>
+              <p className="text-3xl font-bold">{events.length === 0 ? "0" : (successEvents.length / events.length * 100).toFixed(1)}%</p>
             </div>
             <div className="bg-zinc-800 p-4 rounded-lg text-white">
               <h3 className="text-sm text-zinc-400">Errors</h3>
-              <p className="text-3xl font-bold">3</p>
+              <p className="text-3xl font-bold">{errorEvents.length}</p>
             </div>
           </div>
           <section className = "mt-8">
+            {/* 詳細パネル */}
             {selectedEvent && (
               <div className = "relative flex flex-col rounded-md text-white text-lg p-4 gap-2 bg-zinc-800">
                 <button onClick = {() => setSelectedEvent(null)}
@@ -107,13 +134,14 @@ export default function Home() {
                 </button>
                 <p>Method: {selectedEvent.method}</p>
                 <p>Endpoint: {selectedEvent.endpoint}</p>
-                <p className =  {selectedStatus === "SUCCESS" ? "text-green-400" : selectedStatus === "CLIENT_ERROR" ? "text-yellow-400" : selectedStatus === "SERVER_ERROR" ? "text-red-400" : selectedStatus === "REDIRECT" ? "text-blue-400" : "text-zinc-300"}>{selectedStatus}</p>
+                <p className =  {getStatusColor(selectedEvent.status)}>{selectedStatus}</p>
                 <p>Received At: {selectedEvent.receivedAt}</p>
               </div>
             )}
             <h2 className="text-xl font-bold">
               Recent Events
             </h2>
+            {/* 検索 */}
             <div>
               <input type = "text"
                 placeholder = "search events..."
@@ -122,6 +150,7 @@ export default function Home() {
                 className="w-1/2 bg-zinc-800 text-white border border-zinc-700 px-4 py-2 rounded-md"
               />
             </div>
+            {/* 絞り込み */}
             <button
               onClick = {() => setFilter("ALL")}
               className = {filter === "ALL" ? " text-white px-2 py-2 rounded-md" : " text-zinc-400 px-2 py-2 rounded-md"}
@@ -142,7 +171,7 @@ export default function Home() {
             </button>
 
             <div className="space-y-3">
-              <h3 className = "grid grid-cols-[100px_1.3fr_1.7fr_130px] items-center bg-zinc-800 p-4 rounded-lg text-white">
+              <h3 className = "grid grid-cols-[100px_1.3fr_1.7fr_170px] items-center bg-zinc-800 p-4 rounded-lg text-white">
                 <span>Method</span>
                 <span>Endpoint</span>
                 <span>Received At</span>
@@ -157,11 +186,11 @@ export default function Home() {
                 const isGet = event.method === "GET";
                 const isPost = event.method === "POST";
                 return (
-                  <div key = {event.id} onClick = {() => setSelectedEvent(event)} className = "hover:bg-zinc-900 transition-colors duration-200 grid grid-cols-[100px_1.3fr_1.7fr_130px] items-center bg-zinc-800 p-4 rounded-lg text-white">
+                  <div key = {event.id} onClick = {() => setSelectedEvent(event)} className = "hover:bg-zinc-900 transition-colors duration-200 grid grid-cols-[100px_1.3fr_1.7fr_170px] items-center bg-zinc-800 p-4 rounded-lg text-white">
                     <span className = {isGet ? "text-blue-400" : isPost ? "text-green-400" : "text-white"}>{event.method}</span>
                     <span>{event.endpoint}</span>
                     <span className = "text-sm text-zinc-400">{event.receivedAt}</span>
-                    <span className = {status === "SUCCESS" ? "text-green-400" : status === "CLIENT_ERROR" ? "text-yellow-400" : status === "SERVER_ERROR" ? "text-red-400" : status === "REDIRECT" ? "text-blue-400" : "text-zinc-300"}>{status}</span>
+                    <span className = {getStatusColor(event.status)}>{status}</span>
                   </div>
                 );
               })}
