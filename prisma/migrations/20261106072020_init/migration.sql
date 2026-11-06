@@ -1,0 +1,9 @@
+-- CreateTable
+CREATE TABLE "Event" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "method" TEXT NOT NULL,
+    "endpoint" TEXT NOT NULL,
+    "headers" JSONB NOT NULL,
+    "body" JSONB NOT NULL,
+    "receivedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
