@@ -33,6 +33,22 @@ export default function Home() {
     }
   ];
 
+  function getStatusType(status : number){
+    if(status >= 200 && status < 300){
+      return "SUCCESS(" + status + ")"
+    };
+    if(status >= 300 && status < 400){
+      return "REDIRECT(" + status + ")"
+    };
+    if(status >= 400 && status < 500){
+      return "CLIENT_ERROR(" + status + ")"
+    };
+    if(status >= 500 && status < 600){
+      return "SERVER_ERROR(" + status + ")"
+    };
+    return "UNKNOWN";
+  };
+
   const [filter, setFilter] = useState("ALL");
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,10 +59,12 @@ export default function Home() {
     return (filter === "ALL" || event.method === filter)
     && event.endpoint.toLowerCase().includes(searchQuery.toLowerCase());
   })
+
+  const selectedStatus = selectedEvent !== null
+    ? getStatusType(selectedEvent.status)
+    : "UNKNOWN";
+
   
-  const isSelectedEventSuccess = selectedEvent !== null && (selectedEvent.status >= 200 && selectedEvent.status < 300);
-  const isSelectedEventClientError = selectedEvent !== null && (selectedEvent.status >= 400 && selectedEvent.status < 500);
-  const isSelectedEventServerError = selectedEvent !== null && (selectedEvent.status >= 500 && selectedEvent.status < 600);
 
   return (
     <div className = "flex min-h-screen">
@@ -89,7 +107,7 @@ export default function Home() {
                 </button>
                 <p>Method: {selectedEvent.method}</p>
                 <p>Endpoint: {selectedEvent.endpoint}</p>
-                <p className = {isSelectedEventSuccess ? "text-green-400" : isSelectedEventClientError ? "text-yellow-400" : isSelectedEventServerError ? "text-red-400" : "text-blue-400"}>Status: {selectedEvent.status}</p>
+                <p className =  {selectedStatus === "SUCCESS" ? "text-green-400" : selectedStatus === "CLIENT_ERROR" ? "text-yellow-400" : selectedStatus === "SERVER_ERROR" ? "text-red-400" : selectedStatus === "REDIRECT" ? "text-blue-400" : "text-zinc-300"}>{selectedStatus}</p>
                 <p>Received At: {selectedEvent.receivedAt}</p>
               </div>
             )}
@@ -135,9 +153,7 @@ export default function Home() {
                   No Events Found
                 </div>
                : filteredEvents.map((event) => {
-                const isSuccess = event.status >= 200 && event.status < 300;
-                const isClientError = event.status >= 400 && event.status < 500;
-                const isServerError = event.status >= 500 && event.status < 600;
+                const status = getStatusType(event.status)
                 const isGet = event.method === "GET";
                 const isPost = event.method === "POST";
                 return (
@@ -145,7 +161,7 @@ export default function Home() {
                     <span className = {isGet ? "text-blue-400" : isPost ? "text-green-400" : "text-white"}>{event.method}</span>
                     <span>{event.endpoint}</span>
                     <span className = "text-sm text-zinc-400">{event.receivedAt}</span>
-                    <span className = {isSuccess ? "text-green-400" : isClientError ? "text-yellow-400" : isServerError ? "text-red-400" : "text-blue-400"}>{isSuccess ? "SUCCESS" : isServerError || isClientError ? "ERROR" : "REDIRECT"}({event.status})</span>
+                    <span className = {status === "SUCCESS" ? "text-green-400" : status === "CLIENT_ERROR" ? "text-yellow-400" : status === "SERVER_ERROR" ? "text-red-400" : status === "REDIRECT" ? "text-blue-400" : "text-zinc-300"}>{status}</span>
                   </div>
                 );
               })}
