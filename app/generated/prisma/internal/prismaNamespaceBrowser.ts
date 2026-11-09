@@ -51,7 +51,8 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Event: 'Event'
+  Event: 'Event',
+  Project: 'Project'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -69,14 +70,25 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const EventScalarFieldEnum = {
   id: 'id',
+  projectId: 'projectId',
   method: 'method',
   endpoint: 'endpoint',
   headers: 'headers',
-  body: 'body',
+  bodyRaw: 'bodyRaw',
   receivedAt: 'receivedAt'
 } as const
 
 export type EventScalarFieldEnum = (typeof EventScalarFieldEnum)[keyof typeof EventScalarFieldEnum]
+
+
+export const ProjectScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  endpointTokenHash: 'endpointTokenHash',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
 
 
 export const SortOrder = {

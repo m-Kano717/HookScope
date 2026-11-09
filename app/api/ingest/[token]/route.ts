@@ -4,4 +4,5 @@ export async function POST(
 ){
     const body = await request.json();
     const headers = Object.fromEntries(request.headers.entries());
+    const {token} = await params;
 }

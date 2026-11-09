@@ -9,9 +9,19 @@ datasource db {
 
 model Event{
   id Int @id @default(autoincrement())
+  projectId Int
+  project Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   method String
   endpoint String
   headers Json
-  body Json
+  bodyRaw String
   receivedAt DateTime @default(now())
+}
+
+model Project{
+  id Int @id @default(autoincrement())
+  name String
+  endpointTokenHash String @unique
+  createdAt DateTime @default(now())
+  events Event[]
 }

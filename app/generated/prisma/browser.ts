@@ -22,3 +22,8 @@ export * from './enums';
  * 
  */
 export type Event = Prisma.EventModel
+/**
+ * Model Project
+ * 
+ */
+export type Project = Prisma.ProjectModel
