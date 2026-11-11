@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createHash, randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
-import { processFetch } from "next/dist/client/components/router-reducer/fetch-server-response";
 
 export async function POST(request: Request){
     const {name} = await request.json();
