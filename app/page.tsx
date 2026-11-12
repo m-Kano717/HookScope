@@ -1,43 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+  type WebhookEvent = {
+    id: number;
+    projectId: number;
+    method: string;
+    endpoint: string;
+    receivedAt: string;
+  };
+
 export default function Home() {
-  const events = [
-    {
-      id: 1,
-      method: "POST",
-      endpoint: "/api/users",
-      receivedAt: "2026-11-01 10:30:00" 
-    },
-    {
-      id: 2,
-      method: "POST",
-      endpoint: "/api/orders",
-      receivedAt: "2026-11-03 11:25:00" 
-    },
-    {
-      id: 3,
-      method: "POST",
-      endpoint: "/api/payments",
-      receivedAt: "2026-11-03 18:00:00" 
-    },
-    {
-      id: 4,
-      method: "GET",
-      endpoint: "/api/products",
-      receivedAt: "2026-11-05 10:30:00" 
+
+  const [apiEvents, setApiEvents] = useState<WebhookEvent[]>([]);
+
+  useEffect(() => {
+    async function loadEvents(){
+      const response = await fetch("/api/events");
+      const data = await response.json();
+      setApiEvents(data);
     }
-  ];
+    loadEvents();
+  }, []);
 
   const [filter, setFilter] = useState("ALL");
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const [selectedEvent, setSelectedEvent] = useState<typeof events[number] | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<WebhookEvent | null>(null);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
-  const filteredEvents = events.filter((event) => {
+  const filteredEvents = apiEvents.filter((event) => {
     return (filter === "ALL" || event.method === filter)
     && (event.endpoint.toLowerCase().includes(normalizedQuery)
     || event.method.toLowerCase().includes(normalizedQuery));
@@ -65,7 +59,7 @@ export default function Home() {
           <div className = "grid grid-cols-1 gap-4">
             <div className="bg-zinc-800 p-4 rounded-lg text-white">
               <h3 className="text-sm text-zinc-400">Received Events</h3>
-              <p className="text-3xl font-bold">{events.length}</p>
+              <p className="text-3xl font-bold">{apiEvents.length}</p>
             </div>
           </div>
           <section className = "mt-8">
