@@ -7,63 +7,27 @@ export default function Home() {
       id: 1,
       method: "POST",
       endpoint: "/api/users",
-      status: 205,
       receivedAt: "2026-11-01 10:30:00" 
     },
     {
       id: 2,
       method: "POST",
       endpoint: "/api/orders",
-      status: 500,
       receivedAt: "2026-11-03 11:25:00" 
     },
     {
       id: 3,
       method: "POST",
       endpoint: "/api/payments",
-      status: 300,
       receivedAt: "2026-11-03 18:00:00" 
     },
     {
       id: 4,
       method: "GET",
       endpoint: "/api/products",
-      status: 400,
       receivedAt: "2026-11-05 10:30:00" 
     }
   ];
-
-  function getStatusType(status : number){
-    if(status >= 200 && status < 300){
-      return "SUCCESS(" + status + ")"
-    };
-    if(status >= 300 && status < 400){
-      return "REDIRECT(" + status + ")"
-    };
-    if(status >= 400 && status < 500){
-      return "CLIENT_ERROR(" + status + ")"
-    };
-    if(status >= 500 && status < 600){
-      return "SERVER_ERROR(" + status + ")"
-    };
-    return "UNKNOWN";
-  };
-
-  const getStatusColor = (status : number) => {
-    if(status >= 200 && status < 300){
-      return "text-green-400"
-    };
-    if(status >= 300 && status < 400){
-      return "text-blue-400"
-    };
-    if(status >= 400 && status < 500){
-      return "text-yellow-400"
-    };
-    if(status >= 500 && status < 600){
-      return "text-red-400"
-    };
-    return "text-zinc-300";
-  };
 
   const [filter, setFilter] = useState("ALL");
 
@@ -78,19 +42,7 @@ export default function Home() {
     && (event.endpoint.toLowerCase().includes(normalizedQuery)
     || event.method.toLowerCase().includes(normalizedQuery));
   });
-  const successEvents = events.filter((event) => {
-    return getStatusType(event.status).includes("SUCCESS");
-  });
-
-  const errorEvents = events.filter((event) => {
-    return getStatusType(event.status).includes("ERROR");
-  })
-
-  const selectedStatus = selectedEvent !== null
-    ? getStatusType(selectedEvent.status)
-    : "UNKNOWN";
-
-  
+ 
 
   return (
     <div className = "flex min-h-screen">
@@ -110,18 +62,10 @@ export default function Home() {
       </aside>
       <main className = "flex-auto bg-zinc-700 p-6">
         <h1 className = "font-bold text-2xl">Overview</h1>
-          <div className = "grid grid-cols-3 gap-4">
+          <div className = "grid grid-cols-1 gap-4">
             <div className="bg-zinc-800 p-4 rounded-lg text-white">
               <h3 className="text-sm text-zinc-400">Received Events</h3>
               <p className="text-3xl font-bold">{events.length}</p>
-            </div>
-            <div className="bg-zinc-800 p-4 rounded-lg text-white">
-              <h3 className="text-sm text-zinc-400">HTTP Success Rate</h3>
-              <p className="text-3xl font-bold">{events.length === 0 ? "0" : (successEvents.length / events.length * 100).toFixed(1)}%</p>
-            </div>
-            <div className="bg-zinc-800 p-4 rounded-lg text-white">
-              <h3 className="text-sm text-zinc-400">Errors</h3>
-              <p className="text-3xl font-bold">{errorEvents.length}</p>
             </div>
           </div>
           <section className = "mt-8">
@@ -134,7 +78,7 @@ export default function Home() {
                 </button>
                 <p>Method: {selectedEvent.method}</p>
                 <p>Endpoint: {selectedEvent.endpoint}</p>
-                <p className =  {getStatusColor(selectedEvent.status)}>{selectedStatus}</p>
+                <p className =  "text-emerald-400">Received</p>
                 <p>Received At: {selectedEvent.receivedAt}</p>
               </div>
             )}
@@ -182,7 +126,6 @@ export default function Home() {
                   No Events Found
                 </div>
                : filteredEvents.map((event) => {
-                const status = getStatusType(event.status)
                 const isGet = event.method === "GET";
                 const isPost = event.method === "POST";
                 return (
@@ -190,7 +133,7 @@ export default function Home() {
                     <span className = {isGet ? "text-blue-400" : isPost ? "text-green-400" : "text-white"}>{event.method}</span>
                     <span>{event.endpoint}</span>
                     <span className = "text-sm text-zinc-400">{event.receivedAt}</span>
-                    <span className = {getStatusColor(event.status)}>{status}</span>
+                    <span className = "text-emerald-400">Received</span>
                   </div>
                 );
               })}
