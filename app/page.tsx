@@ -16,10 +16,17 @@ export default function Home() {
 
   useEffect(() => {
     async function loadEvents(){
-      const response = await fetch("/api/events");
-      const data = await response.json();
-      setApiEvents(data);
-    }
+      try{
+        const response = await fetch("/api/events");
+        if(!response.ok){
+          throw new Error("API requst failed");
+        };
+        const data = await response.json();
+        setApiEvents(data);
+      }catch{
+        setError("イベントの取得に失敗しました");
+      };
+    };
     loadEvents();
   }, []);
 
@@ -28,6 +35,8 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [selectedEvent, setSelectedEvent] = useState<WebhookEvent | null>(null);
+
+  const [error, setError] = useState<string | null>(null);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
