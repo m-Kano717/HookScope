@@ -12,24 +12,6 @@ import { useState, useEffect } from "react";
 
 export default function Home() {
 
-  const [apiEvents, setApiEvents] = useState<WebhookEvent[]>([]);
-
-  useEffect(() => {
-    async function loadEvents(){
-      try{
-        const response = await fetch("/api/events");
-        if(!response.ok){
-          throw new Error("API requst failed");
-        };
-        const data = await response.json();
-        setApiEvents(data);
-      }catch{
-        setError("イベントの取得に失敗しました");
-      };
-    };
-    loadEvents();
-  }, []);
-
   const [filter, setFilter] = useState("ALL");
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,6 +19,25 @@ export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<WebhookEvent | null>(null);
 
   const [error, setError] = useState<string | null>(null);
+
+  const [apiEvents, setApiEvents] = useState<WebhookEvent[]>([]);
+
+  useEffect(() => {
+    async function loadEvents(){
+      try{
+        const response = await fetch("/api/events");
+        if(!response.ok){
+          throw new Error("API request failed");
+        };
+        const data = await response.json();
+        setApiEvents(data);
+        setError(null);
+      }catch{
+        setError("イベントの取得に失敗しました");
+      };
+    };
+    loadEvents();
+  }, []);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
@@ -88,6 +89,11 @@ export default function Home() {
             <h2 className="text-xl font-bold">
               Recent Events
             </h2>
+            {error && (
+              <div className="bg-red-950 border border-red-800 rounded-md p-3 mt-3">
+                <p className = "text-red-400">{error}</p>
+              </div>
+            )}
             {/* 検索 */}
             <div>
               <input type = "text"
@@ -124,7 +130,9 @@ export default function Home() {
                 <span>Received At</span>
                 <span>Status</span>
               </h3>
-              {filteredEvents.length === 0 ? 
+              {error ? 
+                null
+              : filteredEvents.length === 0 ? 
                 <div className="text-zinc-400 text-center p-8">
                   No Events Found
                 </div>
