@@ -10,13 +10,18 @@ import { useState, useEffect } from "react";
     receivedAt: string;
   };
 
+  type WebhookDetail = WebhookEvent & {
+    headers: Record<string, string>;
+    bodyRaw: string;
+  }
+
 export default function Home() {
 
   const [filter, setFilter] = useState("ALL");
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const [selectedEvent, setSelectedEvent] = useState<WebhookEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<WebhookDetail | null>(null);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -39,6 +44,20 @@ export default function Home() {
     loadEvents();
   }, []);
 
+  async function loadSelectedEvent(id: number){
+    try{
+      const data = await fetch(`/api/events/${id}`);
+      if(!data.ok){
+        throw new Error("API request failed");
+      };
+      const eventDetail = await data.json();
+      setSelectedEvent(eventDetail);
+      setError(null);
+    }catch{
+      setError("イベントの取得に失敗しました");
+    };
+  };
+
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
   const filteredEvents = apiEvents.filter((event) => {
@@ -46,7 +65,10 @@ export default function Home() {
     && (event.endpoint.toLowerCase().includes(normalizedQuery)
     || event.method.toLowerCase().includes(normalizedQuery));
   });
- 
+
+  const selectedEventDate = selectedEvent
+  ? new Date(selectedEvent.receivedAt).toLocaleString("ja-JP")
+  : "";
 
   return (
     <div className = "flex min-h-screen">
@@ -80,10 +102,27 @@ export default function Home() {
                  className = "absolute right-1 top-1 pr-2 pl-2 rounded-full bg-zinc-700 text-zinc-400 hover:bg-zinc-600 transition-colors duration-75">
                   ×
                 </button>
+                <p>Event ID: {selectedEvent.id}</p>
+                <p>headers:</p>
+                <div className="bg-zinc-950 rounded-md p-4 overflow-x-auto">
+                  <pre className="text-sm text-zinc-300 whitespace-pre-wrap break-all">
+                    <code>
+                      {JSON.stringify(selectedEvent.headers, null, 2)}
+                    </code>
+                  </pre>
+                </div>
+                <p>Request Body:</p>
+                <div className="bg-zinc-950 rounded-md p-4 overflow-x-auto">
+                  <pre className="text-sm text-zinc-300 whitespace-pre-wrap break-all">
+                    <code>
+                      {selectedEvent.bodyRaw}
+                    </code>
+                  </pre>
+                </div>
                 <p>Method: {selectedEvent.method}</p>
                 <p>Endpoint: {selectedEvent.endpoint}</p>
                 <p className =  "text-emerald-400">Received</p>
-                <p>Received At: {selectedEvent.receivedAt}</p>
+                <p>Received At: {selectedEventDate}</p>
               </div>
             )}
             <h2 className="text-xl font-bold">
@@ -139,11 +178,14 @@ export default function Home() {
                : filteredEvents.map((event) => {
                 const isGet = event.method === "GET";
                 const isPost = event.method === "POST";
+                const date = event ? 
+                  new Date(event.receivedAt).toLocaleString("ja-JP")
+                  : "";
                 return (
-                  <div key = {event.id} onClick = {() => setSelectedEvent(event)} className = "hover:bg-zinc-900 transition-colors duration-200 grid grid-cols-[100px_1.3fr_1.7fr_170px] items-center bg-zinc-800 p-4 rounded-lg text-white">
+                  <div key = {event.id} onClick = {() => loadSelectedEvent(event.id)} className = "hover:bg-zinc-900 transition-colors duration-200 grid grid-cols-[100px_1.3fr_1.7fr_170px] items-center bg-zinc-800 p-4 rounded-lg text-white">
                     <span className = {isGet ? "text-blue-400" : isPost ? "text-green-400" : "text-white"}>{event.method}</span>
                     <span>{event.endpoint}</span>
-                    <span className = "text-sm text-zinc-400">{event.receivedAt}</span>
+                    <span className = "text-sm text-zinc-400">{date}</span>
                     <span className = "text-emerald-400">Received</span>
                   </div>
                 );
