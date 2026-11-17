@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
   type WebhookEvent = {
     id: number;
@@ -76,14 +77,18 @@ export default function Home() {
         <h2>HookScope</h2>
           <ul className = "space-y-4">
             <li className = "hover:bg-zinc-800 rounded-md p-2">
-              Dashboard
-              </li>
+              <Link href = "/" className="block">
+                Dashboard
+              </Link>
+            </li>
             <li className = "hover:bg-zinc-800 rounded-md p-2">
               Events
-              </li>
+            </li>
             <li className = "hover:bg-zinc-800 rounded-md p-2">
-              Projects
-              </li>
+              <Link href = "/projects" className="block">
+                Projects
+              </Link>
+            </li>
           </ul>
       </aside>
       <main className = "flex-auto bg-zinc-700 p-6">
