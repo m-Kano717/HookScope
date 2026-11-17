@@ -34,3 +34,17 @@ export async function POST(request: Request){
     );
 
 }
+
+export async function GET(){
+    const allProjects = await prisma.project.findMany({
+        orderBy: {
+            createdAt: "desc"
+        },
+        select: {
+            id: true,
+            name: true,
+            createdAt: true
+        }
+    });
+    return NextResponse.json(allProjects);
+}
