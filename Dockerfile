@@ -3,8 +3,10 @@ FROM node:24-bookworm
 WORKDIR /app
 
 COPY package*.json ./
+COPY prisma ./prisma
+COPY prisma.config.ts ./
 
-RUN npm ci
+RUN DATABASE_URL="file:./prisma/dev.db" npm ci
 
 COPY . .
 

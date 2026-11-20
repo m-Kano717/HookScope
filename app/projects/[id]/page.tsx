@@ -1,7 +1,29 @@
 import Link from "next/link"
-import { useEffect, useState } from "react";
+import {notFound} from "next/navigation";
+import {prisma} from "@/lib/prisma";
 
-export default function projectDetail() {
+export const instant = false;
+
+type Props = {
+    params: Promise<{
+        id: string;
+    }>;
+}
+
+export default async function projectDetail({params}: Props) {
+
+    const {id} = await params;
+
+    const project = await prisma.project.findUnique({
+        where: {
+            id: Number(id)
+        }
+    });
+
+    if(!project){
+        notFound();
+    };
+
     return (
         <div className="flex min-h-screen">
             <aside className="w-50 bg-zinc-900 text-white p-6">
@@ -22,6 +44,11 @@ export default function projectDetail() {
                     </li>
                 </ul>
             </aside>
+            <main>
+                <h1>Project Detail</h1>
+                <h3>Project ID: {id}</h3>
+                <h3>Project Name: {project.name}</h3>
+            </main>
         </div>
     )
 }
