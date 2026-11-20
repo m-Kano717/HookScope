@@ -17,6 +17,16 @@ export default async function projectDetail({params}: Props) {
     const project = await prisma.project.findUnique({
         where: {
             id: Number(id)
+        },
+        include: {
+            events: {
+                select: {
+                    id: true,
+                    method: true,
+                    endpoint: true
+                }
+            }
+            
         }
     });
 
@@ -44,10 +54,22 @@ export default async function projectDetail({params}: Props) {
                     </li>
                 </ul>
             </aside>
-            <main>
+            <main className="flex-auto bg-zinc-700 p-6">
                 <h1>Project Detail</h1>
-                <h3>Project ID: {id}</h3>
-                <h3>Project Name: {project.name}</h3>
+                <div className = "block p-2 bg-zinc-500 rounded-md text-xl my-4">
+                    <h3>Project ID: {id}</h3>
+                    <h3>Project Name: {project.name}</h3>
+                </div>
+                {
+                    project.events.map((event) => (
+                            <div key = {event.id}
+                                className="hover:bg-zinc-900 transition-colors duration-200 grid grid-cols-[1.0fr_2.0fr_1fr] items-center bg-zinc-800 p-4 rounded-lg text-white">
+                                <span>{event.id}</span>
+                                <span>{event.method}</span>
+                                <span>{event.endpoint}</span>
+                            </div>
+                    ))
+                }
             </main>
         </div>
     )
