@@ -57,11 +57,11 @@ export default function AllProjects() {
                             return (
                                 <div key = {project.id}
                                     className="hover:bg-zinc-900 transition-colors duration-200 grid grid-cols-[1.0fr_2.0fr_1fr] items-center bg-zinc-800 p-4 rounded-lg text-white">
-                                    
                                         <span>{project.id}</span>
+                                        <Link href={`/projects/${project.id}`}>
                                         <span>{project.name}</span>
+                                        </Link>
                                         <span className="text-sm text-zinc-400">{date}</span>
-                                    
                                 </div>
                             );
                         })
